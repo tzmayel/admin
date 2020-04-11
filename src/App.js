@@ -1,15 +1,18 @@
 import React from 'react';
-import { AgGridReact } from 'ag-grid-react';
 
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-balham.css';
 
-import Button from '@material-ui/core/Button';
 
+import { AgGridReact } from 'ag-grid-react';
+import RecordActions from './RecordActions';
+import InfoMessage from './InfoMessage';
+import { PageControls } from './PageControls';
+
+import api from './api';
 import './App.css';
-import { TextField } from '@material-ui/core';
 
-const ROWS_PER_PAGE = 10;
+const ROWS_PER_PAGE = 20;
 
 class App extends React.Component {
   constructor(props) {
@@ -28,44 +31,19 @@ class App extends React.Component {
     }
   }
 
-  loadApiData() {
-    const sendDate = (new Date()).getTime();
-    let responseTimeMs = 0;
-    fetch(`http://localhost:3001/api/subscribers/${this.state.page}/${this.state.recordsPerPage}`)
-      .then(res => {
-        const receiveDate = (new Date()).getTime();
-        responseTimeMs = receiveDate - sendDate;
 
-        if (res.status === 404) {
-          this.setState({
-            rowData: null,
-            responseTime: responseTimeMs
-          })
-        }
-        else {
-          return res.json();
-        }
-      })
-      .then(res => {
-        this.setState({
-          rowData: res.records,
-          totalDbRecords: res.debugInfo.totalRecordsCount,
-          responseTime: responseTimeMs
-        })
-      })
-      .catch(e => {
-        console.log('e=', e);
-      });
-  }
 
   componentDidMount() {
-    this.loadApiData();
+    this.setState(api.loadApiData(this.state.page, this.state.recordsPerPage, (obj)=>{
+      this.setState(obj);
+    }));
   }
 
   componentDidUpdate(prevProp, prevState) {
-    // Typical usage (don't forget to compare props):
     if (this.state.page !== prevState.page || this.state.recordsPerPage !== prevState.recordsPerPage) {
-      this.loadApiData();
+      this.setState(api.loadApiData(this.state.page, this.state.recordsPerPage, (obj)=>{
+        this.setState(obj);
+      }));
     }
   }
 
@@ -99,10 +77,11 @@ class App extends React.Component {
     })
   }
 
-  handleCountChange(event) {
-    console.log('this', this);
-    this.setState({ recordsPerPage: event.target.value });
+  changeCountPerPage(e){
+    this.setState({ recordsPerPage: e.target.value });
   }
+
+
 
   render() {
     return (
@@ -129,66 +108,18 @@ class App extends React.Component {
               this.gridApi = params.api
             }}
           />
-          <div style={{
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'space-around',
-            padding: 14
-          }}>
-            <div style={{
-              display: 'flex',
-              flexDirection: 'row',
-              justifyContent: 'space-around',
-              padding: 14,
-              width: 240
 
-            }}>
-              <Button variant="outlined" color="primary" onClick={() => this.changePage(1)} >+</Button>
-              <div style={{
-                marginTop: 6,
-                fontSize: 18,
-                marginLeft: 10,
-                marginRight: 10
-              }}>page: {this.state.page}</div>
-              <Button variant="outlined" color="primary" onClick={() => this.changePage(-1)} >-</Button>
-            </div>
-            <div>
-              <TextField
-                label="count"
-                value={this.state.recordsPerPage}
-                variant="outlined"
-                onChange={(e) => this.setState({ recordsPerPage: e.target.value })}
-              />
-            </div>
-            <div style={{fontSize: 14}}>
-              <div>Total records in DB: {this.state.totalDbRecords}</div>
-              <div>Response time: {this.state.responseTime} ms</div>
-            </div>
-          </div>
-          <div style={{
-            background: '#eee',
-            marginTop: 16,
-            marginBottom: 16,
-            padding: 10,
-            borderRadius: 10,
-            height: 30
-          }}>
-            <span>{this.state.messageSelected}</span>
-          </div>
-          <div style={{
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'space-around'
-          }}>
-            <Button variant="contained" color="primary" onClick={this.showSelected}>
-              Send Email
-            </Button>
+          <PageControls 
+            changePage={this.changePage.bind(this)} 
+            page={this.state.page} 
+            changeCountPerPage={this.changeCountPerPage.bind(this)}
+            totalDbRecords={this.state.totalDbRecords}
+            responseTime={this.state.responseTime}
+            recordsPerPage={this.state.recordsPerPage} />
 
-            <Button variant="contained" color="secondary" onClick={this.showSelected}>
-              Delete Selected
-            </Button>
-          </div>
+          <InfoMessage message={this.state.messageSelected} />
 
+          <RecordActions showSelected={this.showSelected} />
 
         </div>
       </div>
