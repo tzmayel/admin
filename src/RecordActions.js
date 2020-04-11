@@ -9,13 +9,12 @@ export default (props) => {
             flexDirection: 'row',
             justifyContent: 'space-around'
         }}>
-            <Button variant="contained" color="primary" onClick={props.showSelected}>
-                Send Email
-            </Button>
-
-            <Button variant="contained" color="secondary" onClick={props.showSelected}>
-                Delete Selected
-            </Button>
+            <div>
+                <Button variant="contained" color="primary" onClick={props.showSelected}>
+                    Send Email
+                </Button>
+                <div>(only shows selected rows)</div>
+            </div>
         </div>
     );
 }
