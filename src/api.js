@@ -15,7 +15,9 @@ const loadApiData = (page, recordsPerPage) => {
 
       return {
         records: null,
-        totalDbRecords: 0,
+        debugInfo: {
+          totalRecordsCount: 0,
+        },
       };
     })
     .then((data) => {

@@ -39,10 +39,11 @@ class App extends React.Component {
       page: 1,
       recordsPerPage: ROWS_PER_PAGE,
       responseTime: 0,
+      totalDbRecords: 0,
     };
 
     this.changePageBinded = this.changePage.bind(this);
-    this.changeCountPerPageBinded = this.changeCountPerPageBinded(this);
+    this.changeCountPerPageBinded = this.changeCountPerPage.bind(this);
   }
 
   componentDidMount() {
@@ -64,7 +65,7 @@ class App extends React.Component {
       this.setState({
         rowData: data.records,
         responseTime: data.responseTime,
-        totalDbRecords: data.totalRecordsCount,
+        totalDbRecords: data.totalDbRecords,
       });
     });
   }
