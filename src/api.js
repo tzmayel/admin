@@ -1,8 +1,11 @@
-const loadApiData = (page, recordsPerPage, callback) => {
+const loadApiData = (page, recordsPerPage) => {
   const sendDate = new Date().getTime();
   let responseTimeMs = 0;
-  fetch(`http://localhost:3001/api/subscribers/${page}/${recordsPerPage}`)
+  return fetch(
+    `http://localhost:3001/api/subscribers/${page}/${recordsPerPage}`
+  )
     .then((res) => {
+      // console.log('res=', res);
       const receiveDate = new Date().getTime();
       responseTimeMs = receiveDate - sendDate;
 
@@ -10,23 +13,21 @@ const loadApiData = (page, recordsPerPage, callback) => {
         return res.json();
       }
 
-      callback({
-        rowData: null,
+      return {
+        records: null,
+        totalDbRecords: 0,
+      };
+    })
+    .then((data) => {
+      // console.log('data=', data);
+      return {
+        records: data.records,
+        totalDbRecords: data.debugInfo.totalRecordsCount,
         responseTime: responseTimeMs,
-      });
-      return null;
+      };
     })
-    .then((res) => {
-      if (res) {
-        callback({
-          rowData: res.records,
-          totalDbRecords: res.debugInfo.totalRecordsCount,
-          responseTime: responseTimeMs,
-        });
-      }
-    })
-    .catch(() => {
-      // console.log('e=', e);
+    .catch((e) => {
+      throw e;
     });
 };
 
